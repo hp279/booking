@@ -1,0 +1,45 @@
+<div class="container-fluid" id="bookingList">
+  <div class="row" style="padding-bottom: 20px">
+    <div class="col-xs-6 col-md-3 text-center"><strong>Service date</strong></div>
+    <div class="col-xs-6 col-md-3 text-center strong"><strong>Final price</strong></div>
+    <div class="col-xs-6 col-md-3 text-center strong"><strong>Full address</strong></div>
+    <div></div>
+  </div>
+  <div class="row" data-ng-repeat-start="booking in ctrl.bookings | orderBy: 'service_date' track by booking.id"
+       ng-class-odd="'alt'" style="padding-bottom: 10px">
+    <div class="col-xs-6 col-md-3 text-center">{{ booking.service_date | date: 'MM/dd/yyyy' }}</div>
+    <div class="col-xs-6 col-md-3 text-center">{{ booking.final_price }}</div>
+    <div class="col-xs-6 col-md-3 text-center">{{ booking.city + ", " + booking.address }}</div>
+    <div class="text-center">
+        <button data-ng-hide="ctrl.activeBooking &&  ctrl.activeBooking.id === booking.id" type="button"
+                class="btn btn-link" data-ng-click="ctrl.showDetail($event, booking)">Show details</button>
+        <button data-ng-show="ctrl.activeBooking &&  ctrl.activeBooking.id === booking.id" type="button"
+                class="btn btn-link" data-ng-click="ctrl.hideDetails($event)" >Hide details</button>
+    </div>
+  </div>
+  <div class="row" data-ng-repeat-end data-ng-show="ctrl.activeBooking &&  ctrl.activeBooking.id === booking.id"
+       ng-class-odd="'alt'" style="padding: 20px; margin: 20px; background-color: #e7e7e7">
+    Detail information:
+
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+        <tr>
+          <th class="text-center">Service name</th>
+          <th class="text-center">Extras</th>
+          <th class="text-center">Pricing parameters</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr data-ng-repeat="service in ctrl.activeBooking.services">
+          <td>{{ service.name }}</td>
+          <td>{{ service.extraNames }}</td>
+          <td>{{ service.pricingParameterNames }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
