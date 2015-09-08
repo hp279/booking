@@ -15,7 +15,6 @@ angular
     'ngRoute',
     'ngSanitize',
     'ngTouch',
-    'angular-loading-bar'
   ])
   .config(function ($routeProvider) {
     $routeProvider
