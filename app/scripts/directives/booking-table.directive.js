@@ -50,14 +50,21 @@ function directive($http) {
 
         $http.get(endPoints.bookingServices.f(booking.id))
           .then(function (booking_response) {
-            self.activeBooking.services = Object.assign(self.activeBooking.services, booking_response.data.services);
+            Object.assign(self.activeBooking.services,
+              _.filter(booking_response.data.services, {'id': booking.service_id}));
+
             self.activeBooking.services.map(function (service) {
-              service.extraNames = _.pluck(service.extras, 'name').join(', ');
-              service.pricingParameterNames = _.pluck(service.pricing_parameters, 'name').join(', ');
-            })
-          });
-      }
-      else {
+              service.extraNames = _.pluck(
+                _.filter(service.extras, function (extra) {
+                  return _.pluck(booking.extras, 'extra_id').indexOf(extra.id) != -1
+                }), 'name').join(', ');
+
+              service.pricingParameterNames = _.pluck(_.filter(service.pricing_parameters, function (pricing_parameter) {
+                   return _.pluck(booking.pricing_parameters, 'pricing_parameter_id').indexOf(pricing_parameter.id) != -1
+              }), 'name').join(', ');
+            });
+          })
+      } else {
         self.activeBooking = null;
       }
     }
