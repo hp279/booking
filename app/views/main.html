@@ -1,0 +1,19 @@
+<div class="jumbotron">
+  <table class="table">
+    <thead>
+    <th>
+      <td>Service date</td>
+      <td>Full address</td>
+      <td>Final price</td>
+    </th>
+    </thead>
+    <tbody>
+    <tr ng-repeat="x in main.bookings">
+      <td>{{ x.service_date }}</td>
+      <td>{{ x.final_price }}</td>
+      <td>{{ x.city + ", " + x.addrress }}</td>
+    </tr>
+    </tbody>
+
+  </table>
+</div>
