@@ -75,7 +75,7 @@ function directive($http) {
     })
       .then(function (response) {
         let single_access_token = response.data.user.single_access_token;
-        $http.defaults.headers.common['X-Authentication'] = USER_EMAIL + ":" + single_access_token;
+        $http.defaults.headers.common['X-Authentication'] = '{0}:{1}'.f(USER_EMAIL, single_access_token);
 
         $http.get(endPoints.bookings)
           .then(function (booking_response) {
@@ -83,7 +83,7 @@ function directive($http) {
           });
 
       }, function (response) {
-        element.text('Error: ' + response);
+        alert('Error: ' + JSON.stringify(response));
       });
   }
 }
