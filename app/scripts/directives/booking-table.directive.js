@@ -30,30 +30,31 @@ function directive($http) {
     $http.defaults.headers.common['X-API-Key'] = API_KEY;
     $http.defaults.headers.common['Content-Type'] = 'application/json';
 
-    String.prototype.format = String.prototype.f = function(){
+    String.prototype.format = String.prototype.f = function () {
       var args = arguments;
-      return this.replace(/\{(\d+)\}/g, function(m,n){
+      return this.replace(/\{(\d+)\}/g, function (m, n) {
         return args[n] ? args[n] : m;
       });
     };
 
-    self.showDetail = function ($event, booking) {
-       $event.preventDefault();
+    self.activeBooking = null;
 
-      if (self.active != booking.id) {
+    self.showDetail = function ($event, booking) {
+      $event.preventDefault();
+
+      if (self.activeBooking === null || self.activeBooking.id !== booking.id) {
         self.activeBooking = {
-          id :  booking.id,
+          id: booking.id,
           services: []
         };
 
         $http.get(endPoints.bookingServices.f(booking.id))
           .then(function (booking_response) {
             self.activeBooking.services = Object.assign(self.activeBooking.services, booking_response.data.services);
-            self.activeBooking.services.map(function(service) {
+            self.activeBooking.services.map(function (service) {
               service.extraNames = _.pluck(service.extras, 'name').join(', ');
               service.pricingParameterNames = _.pluck(service.pricing_parameters, 'name').join(', ');
             })
-            console.log();
           });
       }
       else {
