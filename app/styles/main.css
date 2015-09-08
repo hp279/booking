@@ -75,6 +75,11 @@ body {
   background-color: #ebebeb;
 }
 
+#bookingList #details {
+  padding: 10px;
+  border: 1px solid gray;
+}
+
 /* Responsive: Portrait tablets and up */
 @media screen and (min-width: 768px) {
 

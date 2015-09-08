@@ -14,8 +14,7 @@
           {{ ctrl.activeBooking !== null && ctrl.activeBooking.id === booking.id ? 'Hide details' : 'Show details' }}</button>
     </div>
   </div>
-  <div class="row" data-ng-repeat-end data-ng-show="ctrl.activeBooking &&  ctrl.activeBooking.id === booking.id"
-       style="padding: 10px; border: 1px solid gray">
+  <div id="details" class="row" data-ng-repeat-end data-ng-show="ctrl.activeBooking &&  ctrl.activeBooking.id === booking.id">
     <div class="table-responsive">
       <table class="table">
         <thead>
@@ -26,7 +25,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr data-ng-repeat="service in ctrl.activeBooking.services">
+        <tr data-ng-repeat="service in ctrl.activeBooking.services | orderBy: 'name'">
           <td>{{ service.name }}</td>
           <td>{{ service.extraNames }}</td>
           <td>{{ service.pricingParameterNames }}</td>
@@ -35,6 +34,5 @@
       </table>
     </div>
   </div>
-
 </div>
 
