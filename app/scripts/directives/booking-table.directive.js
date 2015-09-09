@@ -1,41 +1,30 @@
 'use strict';
 
-angular.module('bookingApp').directive('bookingList', ['$http', directive])
+angular.module('bookingApp').directive('bookingList', directive);
 
-function directive($http) {
+function directive() {
   return {
     templateUrl: 'scripts/directives/booking-table.directive.html',
     restrict: 'E',
-    controller: ['$scope', '$log', '$http', controller],
+    controller: ['$scope', '$log', 'AuthService', 'Session', 'BookingsResource', controller],
     controllerAs: 'ctrl',
 
     link: function postLink(scope, element, attrs) {
     }
   };
 
-  function controller($scope, $log, $http) {
+  function controller($scope, $log, AuthService, Session, BookingsResource) {
     const self = this;
 
-    const USER_EMAIL = "user@email.com";
-    const USER_PASSWORD = "trustno1";
-    const API_KEY = "test_8kBFkhmf8TA7TZyQBh";
-
-    const endPointBase = "https://acme-sandbox.l27.co/api";
-    const endPoints = {
-      auth: endPointBase + "/auth",
-      bookings: endPointBase + "/bookings",
-      bookingServices: endPointBase + "/bookings/{0}/services",
-    }
-
-    $http.defaults.headers.common['X-API-Key'] = API_KEY;
-    $http.defaults.headers.common['Content-Type'] = 'application/json';
-
-    String.prototype.format = String.prototype.f = function () {
-      var args = arguments;
-      return this.replace(/\{(\d+)\}/g, function (m, n) {
-        return args[n] ? args[n] : m;
+    AuthService.login().then(function (singleAccessToken) {
+      BookingsResource.bookings(singleAccessToken).get(function (data) {
+        self.bookings = data.bookings;
+      }, function (err) {
+        alert('request failed');
       });
-    };
+    }, function () {
+      // login failed
+    });
 
     self.activeBooking = null;
 
@@ -48,22 +37,23 @@ function directive($http) {
           services: []
         };
 
-        $http.get(endPoints.bookingServices.f(booking.id))
-          .then(function (booking_response) {
-            Object.assign(self.activeBooking.services,
-              _.filter(booking_response.data.services, {'id': booking.service_id}));
+        BookingsResource.bookingServices(Session.singleAccessToken).get({bookingId: booking.id}, function (data) {
+          Object.assign(self.activeBooking.services,
+            _.filter(data.services, {'id': booking.service_id}));
 
-            self.activeBooking.services.map(function (service) {
-              service.extraNames = _.pluck(
-                _.filter(service.extras, function (extra) {
-                  return _.pluck(booking.extras, 'extra_id').indexOf(extra.id) != -1
-                }), 'name').join(', ');
-
-              service.pricingParameterNames = _.pluck(_.filter(service.pricing_parameters, function (pricing_parameter) {
-                   return _.pluck(booking.pricing_parameters, 'pricing_parameter_id').indexOf(pricing_parameter.id) != -1
+          self.activeBooking.services.map(function (service) {
+            service.extraNames = _.pluck(
+              _.filter(service.extras, function (extra) {
+                return _.pluck(booking.extras, 'extra_id').indexOf(extra.id) != -1
               }), 'name').join(', ');
-            });
-          })
+
+            service.pricingParameterNames = _.pluck(_.filter(service.pricing_parameters, function (pricing_parameter) {
+              return _.pluck(booking.pricing_parameters, 'pricing_parameter_id').indexOf(pricing_parameter.id) != -1
+            }), 'name').join(', ');
+          });
+        }, function (err) {
+          alert('request failed');
+        });
       } else {
         self.activeBooking = null;
       }
@@ -73,24 +63,5 @@ function directive($http) {
       $event.preventDefault();
       self.activeBooking = null;
     }
-
-    $http.post(endPoints.auth, {
-      "auth": {
-        "email": USER_EMAIL,
-        "password": USER_PASSWORD
-      }
-    })
-      .then(function (response) {
-        let single_access_token = response.data.user.single_access_token;
-        $http.defaults.headers.common['X-Authentication'] = '{0}:{1}'.f(USER_EMAIL, single_access_token);
-
-        $http.get(endPoints.bookings)
-          .then(function (booking_response) {
-            self.bookings = booking_response.data.bookings;
-          });
-
-      }, function (response) {
-        alert('Error: ' + JSON.stringify(response));
-      });
   }
 }
