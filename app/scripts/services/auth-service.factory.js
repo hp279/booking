@@ -13,7 +13,6 @@ angular.module('bookingApp')
           "password": RestConfig.USER_PASSWORD
         }
       }, headers).then(function (response) {
-        console.log("responce = " + JSON.stringify(response));
         Session.create(
           response.data.user.single_access_token,
           response.data.user.id,
@@ -21,8 +20,7 @@ angular.module('bookingApp')
           response.data.user.first_name,
           response.data.user.last_name
         )
-        console.log("Session = " + JSON.stringify(Session));
-        return response.data.user.single_access_token;
+        return response.data.user;
       })
     }
 

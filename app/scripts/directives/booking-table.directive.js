@@ -16,17 +16,19 @@ function directive() {
   function controller($scope, $log, AuthService, Session, BookingsResource) {
     const self = this;
 
-    AuthService.login().then(function (singleAccessToken) {
-      BookingsResource.bookings(singleAccessToken).get(function (data) {
-        self.bookings = data.bookings;
-      }, function (err) {
-        alert('request failed');
-      });
-    }, function () {
-      // login failed
+    self.activeBooking = null;
+
+    $scope.$on('authenticatedEvent', function (event, data) {
+      self.updateBookings()
     });
 
-    self.activeBooking = null;
+    self.updateBookings = function () {
+      BookingsResource.bookings().get(function (data) {
+        self.bookings = data.bookings;
+      }, function (err) {
+        alert('request failed ' + JSON.stringify(err)); // todo
+      });
+    }
 
     self.showDetail = function ($event, booking) {
       $event.preventDefault();
@@ -37,7 +39,7 @@ function directive() {
           services: []
         };
 
-        BookingsResource.bookingServices(Session.singleAccessToken).get({bookingId: booking.id}, function (data) {
+        BookingsResource.bookingServices().get({bookingId: booking.id}, function (data) {
           Object.assign(self.activeBooking.services,
             _.filter(data.services, {'id': booking.service_id}));
 
@@ -52,7 +54,7 @@ function directive() {
             }), 'name').join(', ');
           });
         }, function (err) {
-          alert('request failed');
+          alert('request failed ' + JSON.stringify(err)); // todo
         });
       } else {
         self.activeBooking = null;
